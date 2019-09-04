@@ -17,12 +17,13 @@ import java.util.TreeMap;
 
 @Service
 @Primary
-public class TrackService {
+public class TrackService implements TrackServiceInterface {
 
     @Autowired
     private TrackRepository trackRepository;
 
-    public ResponseEntity addTrack(Track track) {
+    @Override
+    public Map<String, Object>  addTrack(Track track) {
         if(trackRepository.findByTitle(track.getTitle()).size()>0) {
             throw new TrackAlreadyExistsException("Track", "Title", track.getTitle());
         }
@@ -30,10 +31,11 @@ public class TrackService {
         Map<String, Object> map = new TreeMap<>();
         map.put("message", "Track added successfully.");
         map.put("status", HttpStatus.CREATED);
-        return new ResponseEntity(map, HttpStatus.CREATED);
+        map.put("data", track);
+        return map;
     }
 
-    public ResponseEntity getAllTrack() {
+    public Map<String, Object>  getAllTrack() {
         List<Track> trackList = trackRepository.findAll();
 
         Map<String, Object> map = new TreeMap<>();
@@ -41,10 +43,10 @@ public class TrackService {
         map.put("status", HttpStatus.OK);
         map.put("data", trackList);
         map.put("count", trackList.size());
-        return new ResponseEntity(map, HttpStatus.OK);
+        return map;
     }
 
-    public ResponseEntity getTrackByName(String title) {
+    public Map<String, Object>  getTrackByName(String title) {
         List<Track> trackList = new ArrayList<>();
         if(!title.isEmpty()) {
             trackList = trackRepository.findByTitle(title);
@@ -55,19 +57,19 @@ public class TrackService {
         map.put("status", HttpStatus.OK);
         map.put("data", trackList);
         map.put("count", trackList.size());
-        return new ResponseEntity(map, HttpStatus.OK);
+        return map;
     }
 
-    public ResponseEntity getTrackById(int id) {
+    public Map<String, Object> getTrackById(int id) {
         Track track = trackRepository.findById(id).orElseThrow(() -> new TrackNotFoundException("Track", "id", id));
         Map<String, Object> map = new TreeMap<>();
         map.put("message", "data loaded successfully.");
         map.put("status", HttpStatus.OK);
         map.put("data", track);
-        return new ResponseEntity(map, HttpStatus.OK);
+        return map;
     }
 
-    public ResponseEntity updateTrack(int id, Track trackDetail) {
+    public Map<String, Object>  updateTrack(int id, Track trackDetail) {
         System.out.println("track detail" + trackDetail);
         Track track = trackRepository.findById(id).orElseThrow(() -> new TrackNotFoundException("Track", "id", id));
         track.setTitle(trackDetail.getTitle());
@@ -78,19 +80,21 @@ public class TrackService {
         Map<String, Object> map = new TreeMap<>();
         map.put("message", "Track detail updated successfully with Id: " + id);
         map.put("status", HttpStatus.OK);
-        return new ResponseEntity(map, HttpStatus.OK);
+        map.put("data", track);
+        return map;
     }
 
-    public ResponseEntity deleteTrack(int id) {
+    public Map<String, Object>  deleteTrack(int id) {
         Track track = trackRepository.findById(id).orElseThrow(() -> new TrackNotFoundException("Track", "id", id));
         trackRepository.delete(track);
         Map<String, Object> map = new TreeMap<>();
         map.put("message", "Track detail has been delete for Id: " + id);
         map.put("status", HttpStatus.OK);
-        return new ResponseEntity(map, HttpStatus.OK);
+        map.put("data", track);
+        return map;
     }
 
-    public ResponseEntity createDummy() {
+    public Map<String, Object>  createDummy() {
         List<Track> list = new ArrayList<>();
         for(int i=1; i<=25; i++) {
             list.add(new Track("Title" + i, "Singer" + i, "Genre" + i));
@@ -99,7 +103,7 @@ public class TrackService {
         Map<String, Object> map = new TreeMap<>();
         map.put("message", "Dummy Tracks have been created.");
         map.put("status", HttpStatus.OK);
-        return new ResponseEntity(map, HttpStatus.OK);
+        return map;
     }
 
 }

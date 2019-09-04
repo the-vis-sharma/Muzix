@@ -4,57 +4,66 @@ import in.stackroute.muzix.exception.TrackNotFoundException;
 import in.stackroute.muzix.model.Track;
 import in.stackroute.muzix.repository.TrackRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class TrackDummyService {
+@Service()
+public class TrackDummyService implements TrackServiceInterface {
 
     private static List<Track> trackList = new ArrayList<>();
 
     @Autowired
     private TrackRepository trackRepository;
 
-    public ResponseEntity addTrack(Track track) {
+    @Override
+    public Map<String, Object>  addTrack(Track track) {
         trackList.add(track);
         Map<String, Object> map = new TreeMap<>();
         map.put("message", "Track added successfully.");
         map.put("status", HttpStatus.CREATED);
-        return new ResponseEntity(map, HttpStatus.CREATED);
+        return map;
     }
 
-    public ResponseEntity getAllTrack() {
+    @Override
+    public Map<String, Object>  getAllTrack() {
+        System.out.println("Dummy service....");
         Map<String, Object> map = new TreeMap<>();
         map.put("message", (trackList.size()==0) ? "No records found" : "data loaded successfully.");
         map.put("status", HttpStatus.OK);
         map.put("data", trackList);
         map.put("count", trackList.size());
-        return new ResponseEntity(map, HttpStatus.OK);
+        return map;
     }
 
-    public ResponseEntity getTrackByName(String title) {
+    @Override
+    public Map<String, Object>  getTrackByName(String title) {
         Map<String, Object> map = new TreeMap<>();
         map.put("message", (trackList.size()==0) ? "No records found" : "data loaded successfully.");
         map.put("status", HttpStatus.OK);
         map.put("data", trackList);
         map.put("count", trackList.size());
-        return new ResponseEntity(map, HttpStatus.OK);
+        return map;
     }
 
-    public ResponseEntity getTrackById(int id) {
+    @Override
+    public Map<String, Object>  getTrackById(int id) {
         Track track = findById(id);
         Map<String, Object> map = new TreeMap<>();
         map.put("message", "data loaded successfully.");
         map.put("status", HttpStatus.OK);
         map.put("data", track);
-        return new ResponseEntity(map, HttpStatus.OK);
+        return map;
     }
 
-    public ResponseEntity updateTrack(int id, Track trackDetail) {
+    @Override
+    public Map<String, Object>  updateTrack(int id, Track trackDetail) {
         System.out.println("track detail" + trackDetail);
         Track track = trackRepository.findById(id).orElseThrow(() -> new TrackNotFoundException("Track", "id", id));
         track.setTitle(trackDetail.getTitle());
@@ -65,19 +74,21 @@ public class TrackDummyService {
         Map<String, Object> map = new TreeMap<>();
         map.put("message", "Track detail updated successfully with Id: " + id);
         map.put("status", HttpStatus.OK);
-        return new ResponseEntity(map, HttpStatus.OK);
+        return map;
     }
 
-    public ResponseEntity deleteTrack(int id) {
+    @Override
+    public Map<String, Object>  deleteTrack(int id) {
         Track track = trackRepository.findById(id).orElseThrow(() -> new TrackNotFoundException("Track", "id", id));
         trackRepository.delete(track);
         Map<String, Object> map = new TreeMap<>();
         map.put("message", "Track detail has been delete for Id: " + id);
         map.put("status", HttpStatus.OK);
-        return new ResponseEntity(map, HttpStatus.OK);
+        return map;
     }
 
-    public ResponseEntity createDummy() {
+    @Override
+    public Map<String, Object>  createDummy() {
         List<Track> list = new ArrayList<>();
         for(int i=1; i<=25; i++) {
             list.add(new Track("Title" + i, "Singer" + i, "Genre" + i));
@@ -86,7 +97,7 @@ public class TrackDummyService {
         Map<String, Object> map = new TreeMap<>();
         map.put("message", "Dummy Tracks have been created.");
         map.put("status", HttpStatus.OK);
-        return new ResponseEntity(map, HttpStatus.OK);
+        return map;
     }
 
 
